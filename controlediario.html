@@ -1,455 +1,200 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Caixa Galeteria - Profissional</title>
+    <title>Caixa Galeteria Cloud</title>
     <style>
-        :root {
-            --vermelho: #d62828;
-            --azul: #0077b6;
-            --verde: #2a9d8f;
-            --cinza: #f4f4f4;
-            --escuro: #1d3557;
-        }
+        :root { --vermelho: #d62828; --azul: #0077b6; --verde: #2a9d8f; --cinza: #f4f4f4; --escuro: #1d3557; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--cinza); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 500px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .hidden { display: none; }
+        
+        /* Estilo dos Inputs */
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        
+        /* Itens de Venda */
+        .header-item { background: var(--vermelho); color: white; padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; margin-top: 12px; }
+        .controle-venda { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .btn-control { width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 24px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-mais { background: var(--azul); } .btn-menos { background: var(--vermelho); }
+        
+        /* Cards de Resumo */
+        .card { background: var(--azul); color: white; padding: 12px; border-radius: 8px; text-align: center; margin-top: 10px; font-weight: bold; }
+        .btn-acao { width: 100%; padding: 15px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; }
 
-        /* Ajuste Automático para Celular */
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--cinza);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .data-topo {
-            text-align: center;
-            color: var(--escuro);
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: capitalize;
-            border-bottom: 2px solid var(--azul);
-            padding-bottom: 5px;
-            font-size: 0.9rem;
-        }
-
-        .header-item {
-            background-color: var(--vermelho);
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            margin-top: 15px;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .controle-venda {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 5px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .btn-control {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            transition: 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-menos {
-            background-color: #e63946;
-        }
-
-        .btn-mais {
-            background-color: #457b9d;
-        }
-
-        .btn-control:active {
-            transform: scale(0.9);
-        }
-
-        .qtd-display {
-            font-size: 22px;
-            font-weight: bold;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        .subtotal-box {
-            background-color: var(--verde);
-            color: white;
-            padding: 8px;
-            border-radius: 6px;
-            min-width: 100px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        .resumo {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .box-destaque {
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        .azul {
-            background-color: var(--azul);
-        }
-
-        .sessao-botoes {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        .btn-acao {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .btn-excel {
-            background-color: #1d7244;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            grid-column: span 2;
-            margin-bottom: 5px;
-        }
-
-        .btn-reiniciar {
-            width: 100%;
-            background-color: var(--escuro);
-            color: white;
-            border: none;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        /* Estilo do Popup (Modal) */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 350px;
-            text-align: center;
-            animation: abrir 0.3s ease-out;
-        }
-
-        @keyframes abrir {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .modal-btns {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-direction: column;
-        }
-
-        .btn-modal {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-confirmar {
-            background: var(--verde);
-            color: white;
-        }
-
-        .btn-cancelar {
-            background: #bbb;
-            color: white;
-        }
+        /* Modal */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:1000; padding: 20px; }
+        .modal-content { background:white; padding:20px; border-radius:15px; width:100%; max-width:350px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
+<body>
 
-<body onload="iniciar()">
+<div class="container">
+    <div id="login-screen">
+        <h2 style="text-align:center; color:var(--escuro)">🍗 Galeteria Cloud</h2>
+        <p style="text-align:center; color:#666">Digite a senha para sincronizar</p>
+        <input type="password" id="campoSenha" placeholder="Senha Mestra">
+        <button class="btn-acao" style="background:var(--azul)" onclick="tentarLogin()">ENTRAR E CONECTAR</button>
+    </div>
 
-    <div class="container">
-        <div id="data-display" class="data-topo"></div>
-        <h2 style="text-align: center; margin: 10px 0; color: var(--azul);">📊 Caixa Galeteria</h2>
-
+    <div id="caixa-screen" class="hidden">
+        <div id="data-display" style="text-align:center; font-weight:bold; color:var(--azul); margin-bottom: 10px;"></div>
+        
         <div id="lista-produtos"></div>
-
-        <div class="resumo">
-            <div>
-                <label style="font-size: 11px; font-weight: bold;">TOTAL BRUTO</label>
-                <div class="box-destaque azul" id="geralCaixa">R$ 0,00</div>
-            </div>
-            <div>
-                <label style="font-size: 11px; font-weight: bold;">SAÍDA / DESPESA</label>
-                <input type="number" id="despesa"
-                    style="width:100%; padding:10px; box-sizing:border-box; border: 2px solid #ddd; border-radius: 5px; font-size: 16px;"
-                    oninput="atualizarTudo()" placeholder="0.00">
-            </div>
+        
+        <div class="card" style="background:#f8f9fa; color:#333; border: 1px solid #ddd;">
+            SAÍDAS / DESPESAS:
+            <input type="number" id="despesa" placeholder="R$ 0,00" oninput="calcular()">
         </div>
 
-        <div
-            style="text-align: center; margin-top: 15px; padding: 12px; background: #e9ecef; border-radius: 8px; border: 1px solid #ced4da;">
-            <span style="font-weight: bold; color: #555;">SALDO LÍQUIDO:</span>
-            <div id="saldoFinal" style="font-size: 28px; font-weight: bold; color: var(--verde);">R$ 0,00</div>
+        <div class="card" style="background:var(--verde)">
+            SALDO LÍQUIDO: <span id="totalLiquido" style="font-size: 24px;">R$ 0,00</span>
         </div>
 
-        <div class="sessao-botoes">
-            <button class="btn-excel" onclick="exportarExcel()">📥 BAIXAR RELATÓRIO EXCEL (.CSV)</button>
-            <button class="btn-acao" onclick="verResumo()">🔒 DADOS SALVOS</button>
-            <button class="btn-acao" onclick="iniciarLimpeza()">⚠️ LIMPAR TUDO</button>
-        </div>
-
-        <button class="btn-reiniciar" onclick="perguntaFecharDia()">✅ FECHAR DIA E SALVAR</button>
-    </div>
-
-    <div id="meuModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="modalTitulo" style="margin-top: 0;">Aviso</h3>
-            <p id="modalMensagem" style="color: #444; white-space: pre-line; font-size: 16px;"></p>
-            <div id="modalContainerBtns" class="modal-btns"></div>
+        <button class="btn-acao" style="background:var(--escuro)" onclick="perguntaFechar()">🚀 FINALIZAR E SALVAR NA NUVEM</button>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn-acao" style="background:#f4a261" onclick="abrirRelatorio()">📊 PLANILHA</button>
+            <button class="btn-acao" style="background:#6c757d" onclick="confirmarLimpeza()">⚠️ LIMPAR TUDO</button>
         </div>
     </div>
+</div>
 
-    <script>
-        const produtos = [
-            { id: 'frango', nome: 'CONTROLE DIÁRIO FRANGO', preco: 20.00 },
-            { id: 'baiao', nome: 'CONTROLE DIÁRIO BAIÃO', preco: 4.99 },
-            { id: 'linguica', nome: 'CONTROLE DIÁRIO LINGUIÇA', preco: 2.99 },
-            { id: 'cerveja', nome: 'CONTROLE CERVEJAS', preco: 5.00 }
-        ];
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3 id="m-titulo">Aviso</h3>
+        <p id="m-msg" style="white-space: pre-line; margin-bottom: 20px; color: #444;"></p>
+        <div id="m-btns" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </div>
+</div>
 
-        let dadosVendas = {};
-        let historico = JSON.parse(localStorage.getItem('historico_vendas')) || [];
-        let contagemLimpar = 0;
+<script>
+    // --- CONFIGURAÇÃO (COLOQUE SUAS REAIS AQUI) ---
+    const URL_API = "https://script.google.com/macros/s/AKfycbyqLCchPinwxWB8Xgj588evxWAcgPesj1lzVXWr62QlcJwV3-pcqv5z-I9_H3ftFU8G/exec"; 
+    const URL_PLANILHA = "https://docs.google.com/spreadsheets/d/1URjTWwWCaOgp_TFWLntAtPMRKZxNbEEY65M6DEEv3V8/edit";
+    
+    let senhaUsuario = "";
+    let vendas = {};
+    let countLimpar = 0;
 
-        function iniciar() {
-            exibirData();
-            criarInterface();
-            carregarDadosDoDia();
-        }
+    const produtos = [
+        { id: 'frango', nome: 'FRANGO ASSADO', preco: 20.00 },
+        { id: 'baiao', nome: 'BAIÃO DE DOIS', preco: 5.00 },
+        { id: 'linguica', nome: 'LINGUIÇA UNIT.', preco: 3.00 },
+        { id: 'cerveja', nome: 'CERVEJAS', preco: 6.00 }
+    ];
 
-        function exibirData() {
-            const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('data-display').innerText = new Date().toLocaleDateString('pt-br', opcoes);
-        }
+    function tentarLogin() {
+        senhaUsuario = document.getElementById('campoSenha').value;
+        abrirModal("Conectando...", "Verificando senha no banco de dados...", "");
 
-        function criarInterface() {
-            const container = document.getElementById('lista-produtos');
-            container.innerHTML = '';
-            produtos.forEach(p => {
-                container.innerHTML += `
-                <div class="header-item">${p.nome}</div>
-                <div class="controle-venda">
-                    <button class="btn-control btn-menos" onclick="alterarQtd('${p.id}', -1)">-</button>
-                    <div class="qtd-display" id="qtd-${p.id}">0</div>
-                    <button class="btn-control btn-mais" onclick="alterarQtd('${p.id}', 1)">+</button>
-                    <div class="subtotal-box" id="sub-${p.id}">R$ 0,00</div>
-                </div>
-            `;
-            });
-        }
-
-        function mostrarPopup(titulo, msg, tipo) {
-            const modal = document.getElementById('meuModal');
-            document.getElementById('modalTitulo').innerText = titulo;
-            document.getElementById('modalMensagem').innerText = msg;
-            const btnContainer = document.getElementById('modalContainerBtns');
-            btnContainer.innerHTML = '';
-
-            if (tipo === 'perguntaFechar') {
-                btnContainer.innerHTML = `
-                <button class="btn-modal btn-confirmar" onclick="executarFecharDia()">SIM, SALVAR E FECHAR</button>
-                <button class="btn-modal btn-cancelar" onclick="fecharPopup()">CANCELAR</button>
-            `;
-            } else if (tipo === 'limpeza') {
-                btnContainer.innerHTML = `
-                <button class="btn-modal btn-confirmar" style="background:#bbb" onclick="limparHistorico()">CONTINUAR (${contagemLimpar}/3)</button>
-                <button class="btn-modal btn-cancelar" style="background:#e63946" onclick="fecharPopup()">DESISTIR / VOLTAR</button>
-            `;
+        fetch(URL_API, { method: "POST", body: JSON.stringify({ acao: "login", senha: senhaUsuario }) })
+        .then(r => r.text())
+        .then(res => {
+            if(res === "LOGIN_OK") {
+                fecharModal();
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('caixa-screen').classList.remove('hidden');
+                iniciar();
             } else {
-                btnContainer.innerHTML = `<button class="btn-modal btn-confirmar" style="background:var(--azul)" onclick="fecharPopup()">OK, ENTENDI!</button>`;
+                abrirModal("Erro", "Senha incorreta ou erro de conexão.", '<button class="btn-acao" style="background:var(--vermelho)" onclick="fecharModal()">TENTAR NOVAMENTE</button>');
             }
-            modal.style.display = 'flex';
-        }
+        }).catch(() => alert("Erro ao conectar com o Google!"));
+    }
 
-        function fecharPopup() {
-            document.getElementById('meuModal').style.display = 'none';
-            contagemLimpar = 0; // Se clicar em cancelar ou desistir, reseta a contagem
-        }
+    function iniciar() {
+        document.getElementById('data-display').innerText = new Date().toLocaleDateString('pt-br', {weekday:'long', day:'numeric', month:'long'});
+        const container = document.getElementById('lista-produtos');
+        container.innerHTML = "";
+        produtos.forEach(p => {
+            container.innerHTML += `
+                <div class="header-item">${p.nome} (R$ ${p.preco.toFixed(2)})</div>
+                <div class="controle-venda">
+                    <button class="btn-control btn-menos" onclick="mudar('${p.id}', -1)">-</button>
+                    <span id="q-${p.id}" style="font-weight:bold; font-size:24px;">0</span>
+                    <button class="btn-control btn-mais" onclick="mudar('${p.id}', 1)">+</button>
+                    <span id="v-${p.id}" style="font-weight:bold; color:var(--verde)">R$ 0,00</span>
+                </div>`;
+        });
+    }
 
-        function alterarQtd(id, valor) {
-            if (!dadosVendas[id]) dadosVendas[id] = 0;
-            dadosVendas[id] += valor;
-            if (dadosVendas[id] < 0) dadosVendas[id] = 0;
-            atualizarTudo();
-        }
+    function mudar(id, v) {
+        vendas[id] = (vendas[id] || 0) + v;
+        if(vendas[id] < 0) vendas[id] = 0;
+        calcular();
+    }
 
-        function atualizarTudo() {
-            let totalGeral = 0;
-            produtos.forEach(p => {
-                const qtd = dadosVendas[p.id] || 0;
-                const subtotal = qtd * p.preco;
-                totalGeral += subtotal;
-                document.getElementById(`qtd-${p.id}`).innerText = qtd;
-                document.getElementById(`sub-${p.id}`).innerText = subtotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
-            });
-            const despesa = parseFloat(document.getElementById('despesa').value) || 0;
-            document.getElementById('geralCaixa').innerText = totalGeral.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
-            document.getElementById('saldoFinal').innerText = (totalGeral - despesa).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
-            localStorage.setItem('caixa_atual_v2', JSON.stringify({ vendas: dadosVendas, despesa: despesa }));
-        }
+    function calcular() {
+        let bruto = 0;
+        produtos.forEach(p => {
+            let q = vendas[p.id] || 0;
+            bruto += (q * p.preco);
+            document.getElementById(`q-${p.id}`).innerText = q;
+            document.getElementById(`v-${p.id}`).innerText = (q * p.preco).toLocaleString('pt-br',{style:'currency',currency:'BRL'});
+        });
+        let desp = parseFloat(document.getElementById('despesa').value) || 0;
+        document.getElementById('totalLiquido').innerText = (bruto - desp).toLocaleString('pt-br',{style:'currency',currency:'BRL'});
+    }
 
-        function carregarDadosDoDia() {
-            const salvo = localStorage.getItem('caixa_atual_v2');
-            if (salvo) {
-                const dados = JSON.parse(salvo);
-                dadosVendas = dados.vendas || {};
-                document.getElementById('despesa').value = dados.despesa || '';
-                atualizarTudo();
+    function perguntaFechar() {
+        abrirModal("Finalizar?", "Deseja enviar este fechamento para a planilha em nuvem?", `
+            <button class="btn-acao" style="background:var(--verde)" onclick="enviarNuvem()">SIM, SALVAR TUDO</button>
+            <button class="btn-acao" style="background:#bbb" onclick="fecharModal()">CANCELAR</button>
+        `);
+    }
+
+    function enviarNuvem() {
+        const dados = {
+            acao: "salvar",
+            senha: senhaUsuario,
+            data: new Date().toLocaleDateString('pt-br'),
+            total: document.getElementById('totalLiquido').innerText,
+            despesa: document.getElementById('despesa').value || "0",
+            liquido: document.getElementById('totalLiquido').innerText
+        };
+
+        abrirModal("Salvando...", "Sincronizando com a planilha...", "");
+
+        fetch(URL_API, { method: "POST", body: JSON.stringify(dados) })
+        .then(r => r.text())
+        .then(res => {
+            if(res === "SALVO") {
+                abrirModal("✅ SALVO COM SUCESSO!", "Os dados já estão na sua Planilha Google.", '<button class="btn-acao" style="background:var(--azul)" onclick="location.reload()">INICIAR NOVO DIA</button>');
             }
-        }
+        });
+    }
 
-        function perguntaFecharDia() {
-            mostrarPopup("Encerrar Dia", "Deseja salvar as vendas de hoje no histórico mensal e zerar o caixa atual?", 'perguntaFechar');
+    function confirmarLimpeza() {
+        countLimpar++;
+        if(countLimpar === 1) {
+            abrirModal("⚠️ AVISO 1/3", "Deseja mesmo LIMPAR a tela? Os dados não salvos sumirão!", '<button class="btn-acao" style="background:var(--vermelho)" onclick="confirmarLimpeza()">CONTINUAR</button><button class="btn-acao" style="background:#bbb" onclick="fecharModal()">CANCELAR</button>');
+        } else if(countLimpar === 2) {
+            abrirModal("🚫 AVISO 2/3", "CUIDADO! Essa ação é para quando você erra muito no lançamento.", '<button class="btn-acao" style="background:var(--vermelho)" onclick="confirmarLimpeza()">CONTINUAR</button><button class="btn-acao" style="background:#bbb" onclick="fecharModal()">CANCELAR</button>');
+        } else if(countLimpar === 3) {
+            location.reload(); 
         }
+    }
 
-        function executarFecharDia() {
-            const resumoDia = {
-                data: new Date().toLocaleDateString('pt-br'),
-                total: document.getElementById('geralCaixa').innerText,
-                despesa: document.getElementById('despesa').value || "0",
-                liquido: document.getElementById('saldoFinal').innerText
-            };
-            historico.push(resumoDia);
-            localStorage.setItem('historico_vendas', JSON.stringify(historico));
-            dadosVendas = {};
-            document.getElementById('despesa').value = '';
-            localStorage.removeItem('caixa_atual_v2');
-            atualizarTudo();
-            mostrarPopup("✅ SUCESSO", "O dia foi fechado. Os dados estão seguros no relatório!");
-        }
+    function abrirRelatorio() {
+        abrirModal("Relatórios em Nuvem", "Você pode acessar a planilha de qualquer lugar.", `
+            <button class="btn-acao" style="background:var(--verde)" onclick="window.open('${URL_PLANILHA}')">ABRIR GOOGLE SHEETS</button>
+            <button class="btn-acao" style="background:#bbb" onclick="fecharModal()">VOLTAR</button>
+        `);
+    }
 
-        function iniciarLimpeza() {
-            contagemLimpar = 0;
-            limparHistorico();
-        }
-
-        function limparHistorico() {
-            contagemLimpar++;
-            if (contagemLimpar == 1) {
-                mostrarPopup("⚠️ AVISO 1/3", "Você quer apagar TODO o histórico acumulado?\nIsso apagará todos os dias salvos!", 'limpeza');
-            } else if (contagemLimpar == 2) {
-                mostrarPopup("🚫 AVISO 2/3", "TEM CERTEZA? O lucro mensal acumulado será perdido permanentemente!", 'limpeza');
-            } else if (contagemLimpar == 3) {
-                mostrarPopup("🚫 AVISO 3/3", "TEM CERTEZA?", 'limpeza');
-            } else if (contagemLimpar == 4) {
-                localStorage.clear();
-                contagemLimpar = 0;
-                mostrarPopup("🧹 TUDO APAGADO", "O sistema foi resetado com sucesso.");
-                setTimeout(() => { location.reload(); }, 1500);
-            }
-        }
-
-        function verResumo() {
-            if (historico.length === 0) {
-                mostrarPopup("Aviso", "Ainda não há dias encerrados no histórico.");
-                return;
-            }
-            let totalAcumulado = 0;
-            historico.forEach(dia => {
-                let valor = parseFloat(dia.liquido.replace('R$', '').replace('.', '').replace(',', '.'));
-                totalAcumulado += valor;
-            });
-            mostrarPopup("🔒 HISTÓRICO", `Dias salvos: ${historico.length}\nLucro Líquido Total: ${totalAcumulado.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })}`);
-        }
-
-        function exportarExcel() {
-            if (historico.length === 0) return mostrarPopup("Erro", "Histórico vazio. Feche um dia antes de exportar.");
-            let csv = "Data;Total Bruto;Despesa;Saldo Liquido\n";
-            historico.forEach(dia => {
-                csv += `${dia.data};${dia.total.replace('R$', '')};${dia.despesa};${dia.liquido.replace('R$', '')}\n`;
-            });
-            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "relatorio_caixa.csv";
-            link.click();
-        }
-    </script>
+    function abrirModal(t, m, b) {
+        document.getElementById('m-titulo').innerText = t;
+        document.getElementById('m-msg').innerText = m;
+        document.getElementById('m-btns').innerHTML = b;
+        document.getElementById('modal').style.display = 'flex';
+    }
+    
+    function fecharModal() { 
+        document.getElementById('modal').style.display = 'none'; 
+        countLimpar = 0; 
+    }
+</script>
 </body>
-
 </html>
