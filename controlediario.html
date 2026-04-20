@@ -3,84 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Galeteria Sincronizada</title>
+    <title>Caixa Galeteria - Sincronizado</title>
     <style>
         :root { --vermelho: #d62828; --azul: #0077b6; --verde: #2a9d8f; --cinza: #f4f4f4; --escuro: #1d3557; }
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--cinza); margin: 0; padding: 10px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 500px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .hidden { display: none; }
+        
+        /* Status de Conexão */
+        .status-nuvem { font-size: 11px; text-align: center; color: var(--verde); margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
+        
+        /* Inputs e Botões */
         input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
-        .header-item { background: var(--vermelho); color: white; padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; margin-top: 12px; }
-        .controle-venda { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
-        .btn-control { width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 24px; color: white; cursor: pointer; }
-        .btn-mais { background: var(--azul); } .btn-menos { background: var(--vermelho); }
-        .card { background: var(--azul); color: white; padding: 12px; border-radius: 8px; text-align: center; margin-top: 10px; font-weight: bold; }
-        .btn-acao { width: 100%; padding: 15px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .header-item { background: var(--vermelho); color: white; padding: 12px; text-align: center; font-weight: bold; border-radius: 8px; margin-top: 15px; }
+        .controle-venda { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee; }
+        
+        .btn-control { width: 55px; height: 55px; border-radius: 50%; border: none; font-size: 26px; color: white; cursor: pointer; transition: 0.2s; }
+        .btn-mais { background: var(--azul); } 
+        .btn-menos { background: var(--vermelho); }
+        .btn-control:active { transform: scale(0.9); }
+
+        .card { background: var(--azul); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-top: 10px; font-weight: bold; }
+        .btn-acao { width: 100%; padding: 18px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 12px; font-size: 15px; }
+
+        /* Modal Profissional */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:1000; padding: 20px; }
-        .modal-content { background:white; padding:20px; border-radius:15px; width:100%; max-width:350px; text-align:center; }
+        .modal-content { background:white; padding:25px; border-radius:20px; width:100%; max-width:350px; text-align:center; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="login-screen">
-        <h2 style="text-align:center;">🍗 Galeteria Cloud</h2>
+        <h2 style="text-align:center; color:var(--escuro)">🍗 Galeteria Cloud</h2>
+        <p style="text-align:center; color:#666">Sistema de Sincronização em Tempo Real</p>
         <input type="password" id="campoSenha" placeholder="Senha Mestra">
-        <button class="btn-acao" style="background:var(--azul)" onclick="tentarLogin()">ENTRAR</button>
+        <button class="btn-acao" style="background:var(--azul)" onclick="tentarLogin()">ACESSAR CAIXA</button>
     </div>
 
     <div id="caixa-screen" class="hidden">
-        <button onclick="buscarDadosNuvem()" style="background:#ffca28; color:#000; width:100%; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer; margin-bottom:10px;">🔄 SINCRONIZAR COM OUTRO CELULAR</button>
+        <div class="status-nuvem" id="statusNuvem">● CONECTADO</div>
+        <div id="data-display" style="text-align:center; font-weight:bold; color:var(--azul); margin-bottom:15px; text-transform: uppercase; font-size: 14px;"></div>
         
-        <div id="data-display" style="text-align:center; font-weight:bold; color:var(--azul);"></div>
         <div id="lista-produtos"></div>
         
-        <div class="card" style="background:#f8f9fa; color:#333;">
-            DESPESAS: <input type="number" id="despesa" oninput="calcular(true)" placeholder="0.00">
+        <div class="card" style="background:#f8f9fa; color:#333; border: 1px solid #ccc;">
+            VALOR TOTAL EM DESPESAS (R$):
+            <input type="number" id="despesa" oninput="mudarDespesa()" placeholder="0.00">
         </div>
 
-        <div class="card" style="background:var(--verde)">LÍQUIDO: <span id="totalLiquido">R$ 0,00</span></div>
+        <div class="card" style="background:var(--verde)">
+            LÍQUIDO ATUAL: <span id="totalLiquido" style="font-size: 24px; display: block;">R$ 0,00</span>
+        </div>
 
-        <button class="btn-acao" style="background:var(--escuro)" onclick="perguntaFechar()">✅ FINALIZAR DIA E SALVAR</button>
-        <button class="btn-acao" style="background:#6c757d" onclick="confirmarLimpeza()">⚠️ LIMPAR</button>
+        <button class="btn-acao" style="background:var(--escuro)" onclick="perguntaFechar()">🚀 FINALIZAR E SALVAR NA NUVEM</button>
+        <button class="btn-acao" style="background:#6c757d; padding: 12px; font-size: 12px;" onclick="confirmarLimpeza()">⚠️ LIMPAR TELA (ERRO DE DIGITAÇÃO)</button>
     </div>
 </div>
 
-<div id="modal" class="modal"><div class="modal-content"><h3 id="m-titulo"></h3><p id="m-msg"></p><div id="m-btns"></div></div></div>
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3 id="m-titulo"></h3>
+        <p id="m-msg" style="color:#555; line-height: 1.5;"></p>
+        <div id="m-btns" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </div>
+</div>
 
 <script>
+    // URL DEFINITIVA FORNECIDA
     const URL_API = "https://script.google.com/macros/s/AKfycbyqLCchPinwxWB8Xgj588evxWAcgPesj1lzVXWr62QlcJwV3-pcqv5z-I9_H3ftFU8G/exec"; 
+    
     let senhaUsuario = "";
     let vendas = {};
+    let bloqueioSincronia = false; 
     let countLimpar = 0;
+
     const produtos = [
         { id: 'frango', nome: 'FRANGO ASSADO', preco: 20.00 },
-        { id: 'baiao', nome: 'BAIÃO DE DOIS', preco: 5.00 }
+        { id: 'baiao', nome: 'BAIÃO DE DOIS', preco: 5.00 },
+        { id: 'linguica', nome: 'LINGUIÇA (UNIDADE)', preco: 3.00 },
+        { id: 'cerveja', nome: 'CERVEJA / REFRI', preco: 6.00 }
     ];
 
     function tentarLogin() {
         senhaUsuario = document.getElementById('campoSenha').value;
+        if(!senhaUsuario) return alert("Digite a senha!");
+
+        abrirModal("Verificando...", "Aguarde a conexão com o banco de dados...", "");
+
         fetch(URL_API, { method: "POST", body: JSON.stringify({ acao: "login", senha: senhaUsuario }) })
         .then(r => r.text()).then(res => {
             if(res === "LOGIN_OK") {
+                fecharModal();
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('caixa-screen').classList.remove('hidden');
                 iniciar();
-                buscarDadosNuvem(); // Puxa dados ao entrar
-            } else alert("Senha incorreta!");
-        });
+                buscarDadosNuvem(); 
+                setInterval(buscarDadosNuvem, 5000); // Sincroniza automático a cada 5 segundos
+            } else {
+                abrirModal("Erro", "Senha incorreta!", '<button class="btn-acao" style="background:var(--vermelho)" onclick="fecharModal()">VOLTAR</button>');
+            }
+        }).catch(err => alert("Erro de conexão: " + err));
     }
 
     function iniciar() {
-        document.getElementById('data-display').innerText = new Date().toLocaleDateString('pt-br', {weekday:'long', day:'numeric'});
+        const d = new Date();
+        document.getElementById('data-display').innerText = d.toLocaleDateString('pt-br', {weekday:'long', day:'numeric', month:'long'});
         const container = document.getElementById('lista-produtos');
         container.innerHTML = "";
         produtos.forEach(p => {
-            container.innerHTML += `<div class="header-item">${p.nome}</div>
+            container.innerHTML += `
+                <div class="header-item">${p.nome}</div>
                 <div class="controle-venda">
                     <button class="btn-control btn-menos" onclick="mudar('${p.id}', -1)">-</button>
-                    <span id="q-${p.id}" style="font-weight:bold; font-size:24px;">0</span>
+                    <span id="q-${p.id}" style="font-weight:bold; font-size:26px;">0</span>
                     <button class="btn-control btn-mais" onclick="mudar('${p.id}', 1)">+</button>
                     <span id="v-${p.id}" style="font-weight:bold; color:var(--verde)">R$ 0,00</span>
                 </div>`;
@@ -88,9 +125,17 @@
     }
 
     function mudar(id, v) {
+        bloqueioSincronia = true; 
         vendas[id] = (vendas[id] || 0) + v;
         if(vendas[id] < 0) vendas[id] = 0;
-        calcular(true); // O true indica que deve enviar para a nuvem
+        calcular(true);
+        setTimeout(() => { bloqueioSincronia = false; }, 3000); // 3 segundos de folga após mexer
+    }
+
+    function mudarDespesa() {
+        bloqueioSincronia = true;
+        calcular(true);
+        setTimeout(() => { bloqueioSincronia = false; }, 3000);
     }
 
     function calcular(enviarParaNuvem = false) {
@@ -105,41 +150,68 @@
         document.getElementById('totalLiquido').innerText = (bruto - desp).toLocaleString('pt-br',{style:'currency',currency:'BRL'});
 
         if(enviarParaNuvem) {
-            fetch(URL_API, { method: "POST", body: JSON.stringify({ acao: "atualizar_rascunho", senha: senhaUsuario, vendas: vendas, despesa: desp }) });
+            document.getElementById('statusNuvem').innerText = "☁️ ATUALIZANDO NUVEM...";
+            document.getElementById('statusNuvem').style.color = "orange";
+            fetch(URL_API, { method: "POST", body: JSON.stringify({ acao: "atualizar_rascunho", senha: senhaUsuario, vendas: vendas, despesa: desp }) })
+            .then(() => {
+                document.getElementById('statusNuvem').innerText = "● SINCRONIZADO";
+                document.getElementById('statusNuvem').style.color = "var(--verde)";
+            });
         }
     }
 
     function buscarDadosNuvem() {
+        if(bloqueioSincronia) return; 
+
         fetch(URL_API).then(r => r.json()).then(dados => {
-            vendas = dados.vendas || {};
-            document.getElementById('despesa').value = dados.despesa || "";
-            calcular(false); // Atualiza a tela sem reenviar
+            if(JSON.stringify(vendas) !== JSON.stringify(dados.vendas)) {
+                vendas = dados.vendas || {};
+                document.getElementById('despesa').value = dados.despesa || "";
+                calcular(false);
+            }
         });
     }
 
     function perguntaFechar() {
-        abrirModal("Fechar Dia?", "Isso salva no relatório permanente e limpa a tela de ambos.", `
-            <button class="btn-acao" style="background:var(--verde)" onclick="enviarFinal()">CONFIRMAR</button>
-            <button class="btn-acao" style="background:#bbb" onclick="fecharModal()">VOLTAR</button>
+        abrirModal("Confirmar Fechamento", "Deseja salvar o valor líquido de hoje na planilha permanente? Isso limpará a tela de todos os celulares.", `
+            <button class="btn-acao" style="background:var(--verde)" onclick="enviarFinal()">SIM, FINALIZAR</button>
+            <button class="btn-acao" style="background:#bbb" onclick="fecharModal()">CANCELAR</button>
         `);
     }
 
     function enviarFinal() {
-        const dados = { acao: "salvar", senha: senhaUsuario, data: new Date().toLocaleDateString('pt-br'), total: document.getElementById('totalLiquido').innerText, despesa: document.getElementById('despesa').value, liquido: document.getElementById('totalLiquido').innerText };
-        fetch(URL_API, { method: "POST", body: JSON.stringify(dados) }).then(() => location.reload());
+        const dados = { 
+            acao: "salvar", 
+            senha: senhaUsuario, 
+            data: new Date().toLocaleDateString('pt-br'), 
+            total: document.getElementById('totalLiquido').innerText, 
+            despesa: document.getElementById('despesa').value || "0", 
+            liquido: document.getElementById('totalLiquido').innerText 
+        };
+        
+        abrirModal("Salvando...", "Aguarde...", "");
+        fetch(URL_API, { method: "POST", body: JSON.stringify(dados) }).then(() => {
+            location.reload();
+        });
     }
 
     function confirmarLimpeza() {
         countLimpar++;
-        if(countLimpar < 3) abrirModal("Aviso "+countLimpar+"/3", "Deseja limpar?", '<button class="btn-acao" style="background:var(--vermelho)" onclick="confirmarLimpeza()">CONTINUAR</button>');
-        else location.reload();
+        if(countLimpar === 1) abrirModal("⚠️ AVISO 1/3", "Você quer mesmo limpar os dados da tela?", '<button class="btn-acao" style="background:var(--vermelho)" onclick="confirmarLimpeza()">CONTINUAR</button><button class="btn-acao" style="background:#bbb" onclick="fecharModal()">CANCELAR</button>');
+        else if(countLimpar === 2) abrirModal("🚫 AVISO 2/3", "Isso zerará o caixa para todos os dispositivos!", '<button class="btn-acao" style="background:var(--vermelho)" onclick="confirmarLimpeza()">CONTINUAR</button><button class="btn-acao" style="background:#bbb" onclick="fecharModal()">CANCELAR</button>');
+        else if(countLimpar === 3) location.reload();
     }
 
     function abrirModal(t, m, b) {
-        document.getElementById('m-titulo').innerText = t; document.getElementById('m-msg').innerText = m;
-        document.getElementById('m-btns').innerHTML = b; document.getElementById('modal').style.display = 'flex';
+        document.getElementById('m-titulo').innerText = t; 
+        document.getElementById('m-msg').innerText = m;
+        document.getElementById('m-btns').innerHTML = b; 
+        document.getElementById('modal').style.display = 'flex';
     }
-    function fecharModal() { document.getElementById('modal').style.display = 'none'; countLimpar = 0; }
+    function fecharModal() { 
+        document.getElementById('modal').style.display = 'none'; 
+        countLimpar = 0; 
+    }
 </script>
 </body>
 </html>
