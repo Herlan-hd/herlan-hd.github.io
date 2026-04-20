@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caixa Profissional - Galeteria</title>
+    <style>
+        :root {
+            --vermelho: #d62828;
+            --azul: #0077b6;
+            --verde: #2a9d8f;
+            --cinza: #f4f4f4;
+            --escuro: #333;
+        }
+
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--cinza); margin: 0; padding: 10px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        .data-topo { text-align: center; color: var(--escuro); font-weight: bold; margin-bottom: 10px; text-transform: capitalize; border-bottom: 2px solid var(--azul); padding-bottom: 5px; }
+        
+        .header-item { background-color: var(--vermelho); color: white; padding: 10px; text-align: center; font-weight: bold; margin-top: 15px; border-radius: 8px; }
+        
+        .controle-venda { display: flex; align-items: center; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #ddd; }
+        
+        .btn-control { width: 45px; height: 45px; border-radius: 50%; border: none; font-size: 22px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-menos { background-color: #e63946; }
+        .btn-mais { background-color: #457b9d; }
+
+        .qtd-display { font-size: 20px; font-weight: bold; min-width: 35px; text-align: center; }
+        .subtotal-box { background-color: var(--verde); color: white; padding: 8px; border-radius: 6px; min-width: 90px; text-align: center; font-weight: bold; font-size: 0.9rem; }
+
+        .resumo { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .box-destaque { padding: 12px; border-radius: 8px; text-align: center; color: white; }
+        .azul { background-color: var(--azul); }
+
+        .sessao-botoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn-relatorio { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .btn-excel { background-color: #1d7244; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; grid-column: span 2; }
+        
+        .btn-reiniciar { width: 100%; background-color: var(--escuro); color: white; border: none; padding: 15px; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body onload="iniciar()">
+
+<div class="container">
+    <div id="data-display" class="data-topo">Carregando data...</div>
+    <h2 style="text-align: center; margin: 10px 0; color: var(--azul);">📊 Caixa Galeteria</h2>
+
+    <div id="lista-produtos"></div>
+
+    <div class="resumo">
+        <div>
+            <label style="font-size: 11px; font-weight: bold;">TOTAL BRUTO</label>
+            <div class="box-destaque azul" id="geralCaixa">R$ 0,00</div>
+        </div>
+        <div>
+            <label style="font-size: 11px; font-weight: bold;">DESPESA (R$)</label>
+            <input type="number" id="despesa" style="width:100%; padding:10px; box-sizing:border-box;" oninput="atualizarTudo()">
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 8px;">
+        <span style="font-weight: bold; color: #555;">LÍQUIDO:</span>
+        <div id="saldoFinal" style="font-size: 26px; font-weight: bold; color: var(--verde);">R$ 0,00</div>
+    </div>
+
+    <div class="sessao-botoes">
+        <button class="btn-excel" onclick="exportarExcel()">📥 BAIXAR RELATÓRIO EXCEL (.CSV)</button>
+        <button class="btn-relatorio" onclick="alert('Histórico salvo no navegador com sucesso!')">🔒 DADOS PROTEGIDOS</button>
+        <button class="btn-relatorio" onclick="limparHistorico()">⚠️ LIMPAR HISTÓRICO</button>
+    </div>
+
+    <button class="btn-reiniciar" onclick="fecharDia()">✅ FECHAR DIA E SALVAR</button>
+</div>
+
+<script>
+    const produtos = [
+        { id: 'frango', nome: 'FRANGO ASSADO', preco: 20.00 },
+        { id: 'baiao', nome: 'BAIÃO DE DOIS', preco: 4.99 },
+        { id: 'linguica', nome: 'LINGUIÇA', preco: 2.99 },
+        { id: 'cerveja', nome: 'CERVEJA', preco: 5.00 }
+    ];
+
+    let dadosVendas = {};
+    let historico = JSON.parse(localStorage.getItem('historico_vendas')) || [];
+
+    function iniciar() {
+        exibirData();
+        criarInterface();
+        carregarDadosDoDia();
+    }
+
+    function exibirData() {
+        const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('data-display').innerText = new Date().toLocaleDateString('pt-br', opcoes);
+    }
+
+    function criarInterface() {
+        const container = document.getElementById('lista-produtos');
+        produtos.forEach(p => {
+            container.innerHTML += `
+                <div class="header-item">${p.nome}</div>
+                <div class="controle-venda">
+                    <button class="btn-control btn-menos" onclick="alterarQtd('${p.id}', -1)">-</button>
+                    <div class="qtd-display" id="qtd-${p.id}">0</div>
+                    <button class="btn-control btn-mais" onclick="alterarQtd('${p.id}', 1)">+</button>
+                    <div class="subtotal-box" id="sub-${p.id}">R$ 0,00</div>
+                </div>
+            `;
+        });
+    }
+
+    function alterarQtd(id, valor) {
+        if (!dadosVendas[id]) dadosVendas[id] = 0;
+        dadosVendas[id] += valor;
+        if (dadosVendas[id] < 0) dadosVendas[id] = 0;
+        atualizarTudo();
+    }
+
+    function atualizarTudo() {
+        let totalGeral = 0;
+        produtos.forEach(p => {
+            const qtd = dadosVendas[p.id] || 0;
+            const subtotal = qtd * p.preco;
+            totalGeral += subtotal;
+            document.getElementById(`qtd-${p.id}`).innerText = qtd;
+            document.getElementById(`sub-${p.id}`).innerText = subtotal.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+        });
+
+        const despesa = parseFloat(document.getElementById('despesa').value) || 0;
+        document.getElementById('geralCaixa').innerText = totalGeral.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+        document.getElementById('saldoFinal').innerText = (totalGeral - despesa).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+
+        localStorage.setItem('caixa_atual', JSON.stringify({vendas: dadosVendas, despesa: despesa}));
+    }
+
+    function carregarDadosDoDia() {
+        const salvo = localStorage.getItem('caixa_atual');
+        if (salvo) {
+            const dados = JSON.parse(salvo);
+            dadosVendas = dados.vendas || {};
+            document.getElementById('despesa').value = dados.despesa || '';
+            atualizarTudo();
+        }
+    }
+
+    function fecharDia() {
+        if (confirm("Deseja encerrar o dia? Os dados irão para o relatório mensal.")) {
+            const resumoDia = {
+                data: new Date().toLocaleDateString('pt-br'),
+                vendas: {...dadosVendas},
+                total: document.getElementById('geralCaixa').innerText,
+                despesa: document.getElementById('despesa').value || 0,
+                liquido: document.getElementById('saldoFinal').innerText
+            };
+            historico.push(resumoDia);
+            localStorage.setItem('historico_vendas', JSON.stringify(historico));
+            
+            // Limpa o dia atual
+            dadosVendas = {};
+            document.getElementById('despesa').value = '';
+            localStorage.removeItem('caixa_atual');
+            atualizarTudo();
+            alert("Dia encerrado e salvo no histórico!");
+        }
+    }
+
+    function exportarExcel() {
+        if (historico.length === 0) return alert("Não há dados no histórico para exportar.");
+        
+        let csv = "Data;Total Bruto;Despesa;Saldo Liquido\n";
+        historico.forEach(dia => {
+            csv += `${dia.data};${dia.total};${dia.despesa};${dia.liquido}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "relatorio_galeteria.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function limparHistorico() {
+        if (confirm("Isso apagará TODOS os relatórios passados. Tem certeza?")) {
+            localStorage.removeItem('historico_vendas');
+            historico = [];
+            alert("Histórico apagado.");
+        }
+    }
+</script>
+
+</body>
+</html>
